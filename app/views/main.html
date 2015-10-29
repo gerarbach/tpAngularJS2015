@@ -1,0 +1,155 @@
+<div class="col-md-8 form-group"><h1>CLIENTES</h1></div>
+<div class="col-md-4 form-group">
+    <div style="float:right; text-align: center;"><h4>{{fecha | date:'EEEE'}}<br>{{fecha | date:'MMMM'}}<br>{{fecha | date:'dd, yyyy'}}</h4></div>
+    <ds-widget-clock show-analog theme="blue-light"></ds-widget-clock>
+</div>
+<div class="col-md-6 form-group">
+    <input type="text" class="form-control" ng-model="gridApi.grid.columns[1].filters[0].term" placeholder="BUSCAR NOMBRE"/>
+</div>
+<div class="col-md-6 form-group form_buttons">
+    <button class="btn btn-primary" data-toggle="modal" data-target="#modalNuevo">Crear Nuevo</button>
+    <button id="btnBorrar" name="btnBorrar" type="button" class="btn btn-danger" ng-click="borrarSeleccionados()" disabled>Borrar Seleccionados</button>
+</div>
+
+<div style="clear:both"></div>
+
+<!-- GRILLA -->
+<div ui-grid="grilla" ui-grid-selection ui-grid-resize-columns class="myGrid"></div>
+
+<h3><i class="fa fa-filter"></i> Filtrar <i>(primera letra del apellido)</i></h3>
+<div class="btn-group" style="margin-bottom: 30px">
+    <button type="button" class="btn btn-primary" ng-click="listarClientes('todos')">Todos</button>
+    <button type="button" class="btn btn-primary" ng-repeat="l in letras" ng-click="listarClientes(l)">{{l}}</button>
+</div>
+
+
+
+<!-- Modal Nuevo Cliente-->
+<div class="modal fade" id="modalNuevo" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+        <form name="form.nuevocli" ng-submit="nuevoCliente()" novalidate>
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+              <h4 class="modal-title" id="myModalLabel">Nuevo Cliente</h4>
+            </div>
+            <div class="modal-body">
+                <div class="col-md-6 form-group" ng-class="{'has-error': form.nuevocli.nombre.$invalid && form.nuevocli.nombre.$dirty }">
+                    <input type="text" name="nombre" ng-model="cli.nombre" class="form-control" placeholder="Nombre..." minlength="3" maxlength="30" required />
+                    <div class="validation text-danger" ng-messages="form.nuevocli.nombre.$error" ng-if="form.nuevocli.nombre.$touched || form.nuevocli.nombre.$submitted">
+                        <div ng-message="required" ng-show="form.nuevocli.nombre.$error.required">Campo requerido</div>
+                        <div ng-message="minlength" ng-show="form.nuevocli.nombre.$error.minlength">Debe tener al menos 3 caracteres</div>
+                    </div>
+                </div>
+                <div class="col-md-6 form-group" ng-class="{'has-error': form.nuevocli.apellido.$invalid && form.nuevocli.apellido.$dirty }">
+                    <input type="text" name="apellido" ng-model="cli.apellido" class="form-control" placeholder="Apellido..." minlength="3" maxlength="30" required />
+                    <div class="validation text-danger" ng-messages="form.nuevocli.apellido.$error" ng-if="form.nuevocli.apellido.$touched || form.nuevocli.apellido.$submitted">
+                        <div ng-message="required" ng-show="form.nuevocli.apellido.$error.required">Campo requerido</div>
+                        <div ng-message="minlength" ng-show="form.nuevocli.apellido.$error.minlength">Debe tener al menos 3 caracteres</div>
+                    </div>
+                </div>
+                <div style="clear:both"></div>
+                <div class="col-md-6 form-group" ng-class="{'has-error': form.nuevocli.email.$invalid && form.nuevocli.email.$dirty }">
+                    <input type="email" name="email" ng-model="cli.email" class="form-control" placeholder="Email..." required />
+                    <div class="validation text-danger" ng-messages="form.nuevocli.email.$error" ng-if="form.nuevocli.email.$touched || form.nuevocli.email.$submitted">
+                        <div ng-message="required" ng-show="form.nuevocli.email.$error.required">Campo requerido</div>
+                        <div ng-message="email" ng-show="form.nuevocli.email.$error.email">Formato de Email incorrecto</div>
+                    </div>
+                </div>
+                <div class="col-md-6 form-group" ng-class="{'has-error': form.nuevocli.telefono.$invalid && form.nuevocli.telefono.$dirty }">
+                    <input type="number" name="telefono" ng-model="cli.telefono" class="form-control" placeholder="Teléfono..." required />
+                    <div class="validation text-danger" ng-messages="form.nuevocli.telefono.$error" ng-if="form.nuevocli.telefono.$touched || form.nuevocli.telefono.$submitted">
+                        <div ng-message="required" ng-show="form.nuevocli.telefono.$error.required">Campo requerido</div>
+                    </div>
+                </div>
+                <div style="clear:both"></div>
+                <div class="col-md-6 form-group" ng-class="{'has-error': form.nuevocli.direccion.$invalid && form.nuevocli.direccion.$dirty }">
+                    <input type="text" name="direccion" ng-model="cli.direccion" class="form-control" placeholder="Dirección..." minlength="3" maxlength="30" required />
+                    <div class="validation text-danger" ng-messages="form.nuevocli.direccion.$error" ng-if="form.nuevocli.direccion.$touched || form.nuevocli.direccion.$submitted">
+                        <div ng-message="required" ng-show="form.nuevocli.direccion.$error.required">Campo requerido</div>
+                        <div ng-message="minlength" ng-show="form.nuevocli.direccion.$error.minlength">Formato de Email incorrecto</div>
+                    </div>
+                </div>            
+                <div style="clear:both"></div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+              <button class="btn btn-primary" type="submit" ng-disabled="form.nuevocli.$invalid">Cargar</button>
+            </div>
+        </form>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Editar Cliente -->
+<div class="modal fade" id="modalEditar" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+        <form name="editarcli" ng-submit="editarCliente(editarcli)" novalidate>
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+              <h4 class="modal-title" id="myModalLabel">Nuevo Cliente</h4>
+            </div>
+            <div class="modal-body">
+                
+                <input type="hidden" name="editId" ng-model="editId" />
+                
+                <div class="col-md-6 form-group" ng-class="{'has-error': editarcli.editNombre.$invalid && editarcli.editNombre.$dirty }">
+                    <input type="text" name="editNombre" ng-model="editNombre" class="form-control" placeholder="Nombre..." minlength="3" maxlength="30" required />
+                    <div class="validation text-danger" ng-messages="editarcli.editNombre.$error" ng-if="editarcli.editNombre.$touched || editarcli.editNombre.$submitted">
+                        <div ng-message="required" ng-show="editarcli.editNombre.$error.required">Campo requerido</div>
+                        <div ng-message="minlength" ng-show="editarcli.editNombre.$error.minlength">Debe tener al menos 3 caracteres</div>
+                    </div>
+                </div>
+                <div class="col-md-6 form-group" ng-class="{'has-error': editarcli.editApellido.$invalid && editarcli.editApellido.$dirty }">
+                    <input type="text" name="editApellido" ng-model="editApellido" class="form-control" placeholder="Apellido..." minlength="3" maxlength="30" required />
+                    <div class="validation text-danger" ng-messages="editarcli.editApellido.$error" ng-if="editarcli.editApellido.$touched || editarcli.editApellido.$submitted">
+                        <div ng-message="required" ng-show="editarcli.editApellido.$error.required">Campo requerido</div>
+                        <div ng-message="minlength" ng-show="editarcli.editApellido.$error.minlength">Debe tener al menos 3 caracteres</div>
+                    </div>
+                </div>
+                <div style="clear:both"></div>
+                <div class="col-md-6 form-group" ng-class="{'has-error': editarcli.editEmail.$invalid && editarcli.editEmail.$dirty }">
+                    <input type="email" name="editEmail" ng-model="editEmail" class="form-control" placeholder="Email..." required />
+                    <div class="validation text-danger" ng-messages="editarcli.editEmail.$error" ng-if="editarcli.editEmail.$touched || editarcli.editEmail.$submitted">
+                        <div ng-message="required" ng-show="editarcli.editEmail.$error.required">Campo requerido</div>
+                        <div ng-message="email" ng-show="editarcli.editEmail.$error.email">Formato de Email incorrecto</div>
+                    </div>
+                </div>
+                <div class="col-md-6 form-group" ng-class="{'has-error': editarcli.editTelefono.$invalid && editarcli.editTelefono.$dirty }">
+                    <input type="number" name="editTelefono" ng-model="editTelefono" class="form-control" placeholder="Teléfono..." required />
+                    <div class="validation text-danger" ng-messages="editarcli.editTelefono.$error" ng-if="editarcli.editTelefono.$touched || editarcli.editTelefono.$submitted">
+                        <div ng-message="required" ng-show="editarcli.editTelefono.$error.required">Campo requerido</div>
+                    </div>
+                </div>
+                <div style="clear:both"></div>
+                <div class="col-md-6 form-group" ng-class="{'has-error': editarcli.editDireccion.$invalid && editarcli.editDireccion.$dirty }">
+                    <input type="text" name="editDireccion" ng-model="editDireccion" class="form-control" placeholder="Dirección..." minlength="3" maxlength="30" required />
+                    <div class="validation text-danger" ng-messages="editarcli.editDireccion.$error" ng-if="editarcli.editDireccion.$touched || editarcli.editDireccion.$submitted">
+                        <div ng-message="required" ng-show="editarcli.editDireccion.$error.required">Campo requerido</div>
+                        <div ng-message="minlength" ng-show="editarcli.editDireccion.$error.minlength">Formato de Email incorrecto</div>
+                    </div>
+                </div>   
+                <div style="clear:both"></div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+              <button class="btn btn-primary" type="submit" ng-disabled="editarcli.$invalid">Editar</button>
+            </div>
+        </form>
+    </div>
+  </div>
+</div>
+
+
+<!-- Modal Calculadora -->
+<div class="modal fade" id="modalCalc" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+  <div class="modal-dialog" style="width:241px" role="document">
+    <div class="modal-content">
+        <div class="modal-body">
+            <div calc></div>
+            <button type="button" class="btn btn-primary" data-dismiss="modal">Cerrar</button>
+        </div>
+    </div>
+  </div>
+</div>
